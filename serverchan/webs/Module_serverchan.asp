@@ -445,7 +445,6 @@ function version_show(){
                                                         <option value="21">21时</option>
                                                         <option value="22" selected="selected">22时</option>
                                                         <option value="23">23时</option>
-                                                        <option value="0">24时</option>
                                                 </select> 到 
                                                 <select id="serverchan_silent_time_end_hour" name="serverchan_silent_time_end_hour" style="margin:0px 0px 0px 2px;" class="input_option" >
                                                         <option value="1">1时</option>
