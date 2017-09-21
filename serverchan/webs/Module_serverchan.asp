@@ -311,17 +311,12 @@ function done_validating(action) { //提交操作5秒后刷洗网页
 function reload_Soft_Center(){ //返回软件中心按钮
     location.href = "/Main_Soft_center.asp";
 }
+
 function menu_hook(title, tab) {
-    var enable_ss = "<% nvram_get("enable_ss"); %>";
-    var enable_soft = "<% nvram_get("enable_soft"); %>";
-    if(enable_ss == "1" && enable_soft == "1"){
-        tabtitle[tabtitle.length -2] = new Array("", "ServerChan微信通知");
-        tablink[tablink.length -2] = new Array("", "Module_serverchan.asp");
-    }else{
-        tabtitle[tabtitle.length -1] = new Array("", "ServerChan微信通知");
-        tablink[tablink.length -1] = new Array("", "Module_serverchan.asp");
-    }
+    tabtitle[tabtitle.length -1] = new Array("", "ServerChan微信通知");
+    tablink[tablink.length -1] = new Array("", "Module_serverchan.asp");
 }
+
 function oncheckclick(obj) {
     if (obj.checked) {
         document.form["f_" + obj.id].value = "1";

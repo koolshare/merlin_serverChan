@@ -4,5 +4,5 @@
     "md5": "751ac25a189799fdc122a5a00031b916", 
     "module": "serverchan", 
     "title": "serverChan微信推送", 
-    "version": "0.0.7"
+    "version": "0.0.8"
 }
