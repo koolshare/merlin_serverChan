@@ -701,6 +701,13 @@ function version_show(){
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th width="20%">USB信息</th>
+                                            <td>
+                                                <input type="checkbox" id="serverchan_info_usb" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_info_usb" name="serverchan_info_usb" value="" />
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th width="20%">客户端列表</th>
                                             <td>
                                                 <input type="checkbox" id="serverchan_info_lan" checked="checked" onclick="oncheckclick(this);">
