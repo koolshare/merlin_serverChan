@@ -680,6 +680,13 @@ function version_show(){
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th width="20%">在免打扰时间内推送定时消息</th>
+                                            <td>
+                                                <input type="checkbox" id="serverchan_info_silent_send" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_info_silent_send" name="serverchan_info_silent_send" value="" />
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th width="20%">系统运行情况</th>
                                             <td>
                                                 <input type="checkbox" id="serverchan_info_system" checked="checked" onclick="oncheckclick(this);">
@@ -703,8 +710,8 @@ function version_show(){
                                         <tr>
                                             <th width="20%">USB信息</th>
                                             <td>
-                                                <input type="checkbox" id="serverchan_info_usb" onclick="oncheckclick(this);">
-                                                <input type="hidden" id="f_serverchan_info_usb" name="serverchan_info_usb" value="" />
+                                                <input type="checkbox" id="serverchan_info_usb" checked="checked" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_info_usb" name="serverchan_info_usb" value="1" />
                                             </td>
                                         </tr>
                                         <tr>
@@ -742,7 +749,7 @@ function version_show(){
                                         <tr>
                                             <th width="20%">网络重拨时</th>
                                             <td>
-                                                <input type="checkbox" id="serverchan_trigger_ifup" onclick="oncheckclick(this);">
+                                                <input type="checkbox" id="serverchan_trigger_ifup" checked="checked" onclick="oncheckclick(this);">
                                                 <input type="hidden" id="f_serverchan_trigger_ifup" name="serverchan_trigger_ifup" value="1" />
                                             </td>
                                         </tr>
