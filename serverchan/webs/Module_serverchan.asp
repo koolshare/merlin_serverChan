@@ -181,7 +181,19 @@ function buildswitch(){ //生成开关的功能，checked为开启，此时传�
         }
     });
 }
-
+function qj2bj(str){
+    var tmp = "";
+    for(var i=0;i<str.length;i++){
+        if(str.charCodeAt(i) >= 65281 && str.charCodeAt(i) <= 65374){
+            tmp += String.fromCharCode(str.charCodeAt(i)-65248)
+        }else if(str.charCodeAt(i) == 12288){
+            tmp += ' ';
+        }else{
+            tmp += str[i];
+        }
+    }
+    return tmp;
+}
 function conf2obj(){ //表单填写函数，将dbus数据填入到对应的表单中
     for(var field in db_serverchan) {
         var el = document.getElementById(field);
@@ -189,6 +201,8 @@ function conf2obj(){ //表单填写函数，将dbus数据填入到对应的表�
             if (field == "serverchan_config_name") {
                 el.value = Base64.decode(db_serverchan[field]);
             } else if(field == "serverchan_trigger_dhcp_white") {
+                el.value = Base64.decode(db_serverchan[field]);
+            } else if(field == "serverchan_check_custom") {
                 el.value = Base64.decode(db_serverchan[field]);
             } else {
                 if (field == "serverchan_status_check") {
@@ -198,30 +212,35 @@ function conf2obj(){ //表单填写函数，将dbus数据填入到对应的表�
                         document.getElementById('_serverchan_check_week_pre').style.display="none";
                         document.getElementById('_serverchan_check_time_pre').style.display="none";
                         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="none";
                         document.getElementById('_serverchan_check_send_text').style.display="none";
                     } else if(__serverchan_status_check == "1") {
                         document.getElementById('_serverchan_check_week_pre').style.display="none";
                         document.getElementById('_serverchan_check_day_pre').style.display="none";
                         document.getElementById('_serverchan_check_time_pre').style.display="inline";
                         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="none";
                         document.getElementById('_serverchan_check_send_text').style.display="inline";
                     } else if(__serverchan_status_check == "2") {
                         document.getElementById('_serverchan_check_week_pre').style.display="inline";
                         document.getElementById('_serverchan_check_day_pre').style.display="none";
                         document.getElementById('_serverchan_check_time_pre').style.display="inline";
                         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="none";
                         document.getElementById('_serverchan_check_send_text').style.display="inline";
                     } else if(__serverchan_status_check == "3") {
                         document.getElementById('_serverchan_check_week_pre').style.display="none";
                         document.getElementById('_serverchan_check_day_pre').style.display="inline";
                         document.getElementById('_serverchan_check_time_pre').style.display="inline";
                         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="none";
                         document.getElementById('_serverchan_check_send_text').style.display="inline";
                     } else if(__serverchan_status_check == "4") {
                         document.getElementById('_serverchan_check_week_pre').style.display="none";
                         document.getElementById('_serverchan_check_day_pre').style.display="none";
                         document.getElementById('_serverchan_check_time_pre').style.display="none";
                         document.getElementById('_serverchan_check_inter_pre').style.display="inline";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="none";
                         document.getElementById('_serverchan_check_send_text').style.display="inline";
                         __serverchan_check_inter_pre=db_serverchan["serverchan_check_inter_pre"];
                         if (__serverchan_check_inter_pre == "1") {
@@ -246,6 +265,14 @@ function conf2obj(){ //表单填写函数，将dbus数据填入到对应的表�
                             document.getElementById('_serverchan_check_inter_pre').style.display="inline";
                             document.getElementById('_serverchan_check_send_text').style.display="inline";
                         }
+                    } else if(__serverchan_status_check == "5") {
+                        document.getElementById('_serverchan_check_week_pre').style.display="none";
+                        document.getElementById('_serverchan_check_day_pre').style.display="none";
+                        document.getElementById('_serverchan_check_time_pre').style.display="inline";
+                        document.getElementById('_serverchan_check_inter_pre').style.display="none";
+                        document.getElementById('_serverchan_check_custom_pre').style.display="inline";
+                        document.getElementById('_serverchan_check_send_text').style.display="inline";
+                        document.getElementById('serverchan_check_time_hour').style.display="none";
                     }
                 }
                 if (el.getAttribute("type") == "checkbox") {
@@ -298,9 +325,9 @@ function manual_push() {
     refreshpage(2);
 }
 function validForm() {
-    var temp_serverchan = ["serverchan_config_name", "serverchan_trigger_dhcp_white"];
+    var temp_serverchan = ["serverchan_config_name", "serverchan_check_custom", "serverchan_trigger_dhcp_white"];
     for(var i = 0; i < temp_serverchan.length; i++) {
-        var temp_str = $G(temp_serverchan[i]).value;
+        var temp_str = qj2bj($G(temp_serverchan[i]).value);
         $G(temp_serverchan[i]).value = Base64.encode(temp_str);
     }
     return true;
@@ -476,6 +503,7 @@ function version_show(){
                                                     <option value="2">每周</option>
                                                     <option value="3">每月</option>
                                                     <option value="4">每隔</option>
+                                                    <option value="5">自定义</option>
                                                 </select>
                                                 <span id="_serverchan_check_week_pre" style="display: none;">
                                                     <select id="serverchan_check_week" name="serverchan_check_week" style="margin:0px 0px 0px 2px;" class="input_option" >
@@ -584,6 +612,9 @@ function version_show(){
                                                         <option value="2">小时</option>
                                                         <option value="3">天</option>
                                                     </select>
+                                                </span>
+                                                <span id="_serverchan_check_custom_pre" style="display: none;">
+                                                    <input type="text" id="serverchan_check_custom" name="serverchan_check_custom" class="input_6_table" maxlength="50" title="填写说明：&#13;此处填写1-23之间任意小时&#13;小时间用逗号间隔，如：&#13;当天的8点、10点、15点则填入：8,10,15" placeholder="8,10,15" style="width:150px;" /> 小时
                                                 </span>
                                                 <span id="_serverchan_check_time_pre" style="display: none;">
                                                     <select id="serverchan_check_time_hour" name="serverchan_check_time_hour" style="margin:0px 0px 0px 2px;" class="input_option" >
@@ -810,30 +841,38 @@ function status_onchange(){
         document.getElementById('_serverchan_check_week_pre').style.display="none";
         document.getElementById('_serverchan_check_time_pre').style.display="none";
         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+        document.getElementById('_serverchan_check_custom_pre').style.display="none";
         document.getElementById('_serverchan_check_send_text').style.display="none";
     } else if(__serverchan_status_check == "1"){
         document.getElementById('_serverchan_check_week_pre').style.display="none";
         document.getElementById('_serverchan_check_day_pre').style.display="none";
         document.getElementById('_serverchan_check_time_pre').style.display="inline";
         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+        document.getElementById('_serverchan_check_custom_pre').style.display="none";
         document.getElementById('_serverchan_check_send_text').style.display="inline";
+        document.getElementById('serverchan_check_time_hour').style.display="inline";
     } else if(__serverchan_status_check == "2"){
         document.getElementById('_serverchan_check_week_pre').style.display="inline";
         document.getElementById('_serverchan_check_day_pre').style.display="none";
         document.getElementById('_serverchan_check_time_pre').style.display="inline";
         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+        document.getElementById('_serverchan_check_custom_pre').style.display="none";
+        document.getElementById('serverchan_check_time_hour').style.display="inline";
         document.getElementById('_serverchan_check_send_text').style.display="inline";
     } else if(__serverchan_status_check == "3"){
         document.getElementById('_serverchan_check_week_pre').style.display="none";
         document.getElementById('_serverchan_check_day_pre').style.display="inline";
         document.getElementById('_serverchan_check_time_pre').style.display="inline";
         document.getElementById('_serverchan_check_inter_pre').style.display="none";
+        document.getElementById('_serverchan_check_custom_pre').style.display="none";
+        document.getElementById('serverchan_check_time_hour').style.display="inline";
         document.getElementById('_serverchan_check_send_text').style.display="inline";
     } else if(__serverchan_status_check == "4"){
         document.getElementById('_serverchan_check_week_pre').style.display="none";
         document.getElementById('_serverchan_check_day_pre').style.display="none";
         document.getElementById('_serverchan_check_time_pre').style.display="none";
         document.getElementById('_serverchan_check_inter_pre').style.display="inline";
+        document.getElementById('_serverchan_check_custom_pre').style.display="none";
         document.getElementById('_serverchan_check_send_text').style.display="inline";
         if (___serverchan_check_inter_pre == "1") {
             document.getElementById('serverchan_check_inter_min').style.display="inline";
@@ -856,7 +895,16 @@ function status_onchange(){
             document.getElementById('_serverchan_check_time_pre').style.display="inline";
             document.getElementById('_serverchan_check_inter_pre').style.display="inline";
             document.getElementById('_serverchan_check_send_text').style.display="inline";
+            document.getElementById('serverchan_check_time_hour').style.display="inline";
         }
+    } else if(__serverchan_status_check == "5"){
+        document.getElementById('_serverchan_check_week_pre').style.display="none";
+        document.getElementById('_serverchan_check_day_pre').style.display="none";
+        document.getElementById('_serverchan_check_time_pre').style.display="inline";
+        document.getElementById('_serverchan_check_inter_pre').style.display="none";
+        document.getElementById('_serverchan_check_custom_pre').style.display="inline";
+        document.getElementById('_serverchan_check_send_text').style.display="inline";
+        document.getElementById('serverchan_check_time_hour').style.display="none";
     }
 }
 function inter_pre_onchange(){
