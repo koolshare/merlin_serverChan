@@ -295,7 +295,6 @@ function pass_checked(obj){
     switchType(obj, document.form.show_pass.checked, true);
 }
 function onSubmitCtrl() { //提交操作，提交时运行serverchan_config，显示5秒的载入画面
-    var _form = document.form;
     document.form.action_mode.value = ' Refresh ';
     document.form.SystemCmd.value = "serverchan_config.sh";
     if (validForm()) {
@@ -305,11 +304,6 @@ function onSubmitCtrl() { //提交操作，提交时运行serverchan_config，�
 }
 function manual_push() {
     $G('manual_push_Btn').disabled = "disabled";
-    var _form = document.form;
-    if(trim(_form.serverchan_config_sckey_1.value)=="" && trim(_form.serverchan_config_sckey_2.value)=="" && trim(_form.serverchan_config_sckey_3.value)==""){
-        alert("提交的表单不能为空!");
-        return false;
-    }
     checkTime = 2001; //停止可能在进行的刷新
     document.form.SystemCmd.value = "serverchan_check.sh";
     document.form.action_mode.value = ' Refresh ';
