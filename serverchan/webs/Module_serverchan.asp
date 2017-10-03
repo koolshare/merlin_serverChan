@@ -156,6 +156,7 @@ if(typeof btoa == "Function") {
 function initial(){
     show_menu(menu_hook);
     conf2obj();
+    refresh_table();
     version_show();
     buildswitch();
     toggle_switch();
@@ -295,10 +296,6 @@ function pass_checked(obj){
 }
 function onSubmitCtrl() { //提交操作，提交时运行serverchan_config，显示5秒的载入画面
     var _form = document.form;
-    if(trim(_form.serverchan_config_sckey_1.value)=="" && trim(_form.serverchan_config_sckey_2.value)=="" && trim(_form.serverchan_config_sckey_3.value)==""){
-        alert("提交的表单不能为空!");
-        return false;
-    }
     document.form.action_mode.value = ' Refresh ';
     document.form.SystemCmd.value = "serverchan_config.sh";
     if (validForm()) {
@@ -343,12 +340,179 @@ function menu_hook(title, tab) {
     tabtitle[tabtitle.length -1] = new Array("", "ServerChan微信通知");
     tablink[tablink.length -1] = new Array("", "Module_serverchan.asp");
 }
+function addTr(o) { //添加配置行操作
+    var _form_addTr = document.form;
+    if(trim(_form_addTr.config_sckey.value)==""){
+        alert("提交的表单不能为空!");
+        return false;
+    }
+    var ns = {};
+    var p = "serverchan";
+    node_max += 1;
+    // 定义ns数组，用于回传给dbus
+    var params = ["config_sckey"];
+    if(!myid){
+        for (var i = 0; i < params.length; i++) {
+            ns[p + "_" + params[i] + "_" + node_max] = $j('#' + params[i]).val();
+        }
+    }else{
+        for (var i = 0; i < params.length; i++) {
+            ns[p + "_" + params[i] + "_" + myid] = $j('#' + params[i]).val();
+        }
+    }
+    //回传网页数据给dbus接口，此处回传不同于form表单回传
+    $j.ajax({
+        url: '/applydb.cgi?p=serverchan',
+        contentType: "application/x-www-form-urlencoded",
+        dataType: 'text',
+        data: $j.param(ns),
+        error: function(xhr) {
+            console.log("error in posting config of table");
+        },
+        success: function(response) {
+            //回传成功后，重新生成表格
+            refresh_table();
+            // 添加成功一个后将输入框清空
+            document.form.config_sckey.value = "";
+        }
+    });
+    myid=0;
+}
+function delTr(o) { //删除配置行功能
+    if (confirm("你确定删除吗？")) {
+        //定位每行配置对应的ID号
+        var id = $j(o).attr("id");
+        var ids = id.split("_");
+        var p = "serverchan";
+        id = ids[ids.length - 1];
+        // 定义ns数组，用于回传给dbus
+        var ns = {};
+        var params = ["config_sckey"];
+        for (var i = 0; i < params.length; i++) {
+            //空的值，用于清除dbus中的对应值
+            ns[p + "_" + params[i] + "_" + id] = "";
+        }
+        //回传删除数据操作给dbus接口
+        $j.ajax({
+            url: '/applydb.cgi?use_rm=1&p=serverchan',
+            contentType: "application/x-www-form-urlencoded",
+            dataType: 'text',
+            data: $j.param(ns),
+            error: function(xhr) {
+                console.log("error in posting config of table");
+            },
+            success: function(response) {
+                //回传成功后，重新生成表格
+                refresh_table();
+            }
+        });
+    }
+}
+function refresh_table() {
+    //获取dbus数据接口，该接口获取dbus list serverchan的所有值
+    $j.ajax({
+        url: '/dbconf?p=serverchan',
+        dataType: 'html',
+        error: function(xhr){
+        },
+        success: function(response){
+            $j.globalEval(response);
+            //先删除表格中的行，留下前两行，表头和数据填写行
+            $j("#conf_table").find("tr:gt(1)").remove();
+            //在表格中增加行，增加的行的内容来自refresh_html()函数生成
+            $j('#conf_table tr:last').after(refresh_html());
+        }
+    });
+}
+var myid;
 
+function getAllConfigs() { //用dbus数据生成数据组，方便用于refresh_html()生成表格
+    var dic = {};
+    node_max = 0; //定义配置行数，用于每行配置的后缀
+    for (var field in db_serverchan) {
+        names = field.split("_");
+        dic[names[names.length - 1]] = 'ok';
+    }
+    confs = {};
+    var p = "serverchan";
+    var params = ["config_sckey"];
+    for (var field in dic) {
+        var obj = {};
+        for (var i = 0; i < params.length; i++) {
+            var ofield = p + "_" + params[i] + "_" + field;
+            if (typeof db_serverchan[ofield] == "undefined") {
+                obj = null;
+                break;
+            }
+            obj[params[i]] = db_serverchan[ofield];
+            //alert(i);
+        }
+        if (obj != null) {
+            var node_i = parseInt(field);
+            if (node_i > node_max) {
+                node_max = node_i;
+            }
+            obj["node"] = field;
+            confs[field] = obj;
+        }
+    }
+    //总之，最后生成了confs数组
+    return confs;
+}
+function refresh_html() { //用conf数据生成配置表格
+    confs = getAllConfigs();
+    var n = 0; for(var i in confs){n++;} //获取节点的数目
+    var html = '';
+    for (var field in confs) {
+        var c = confs[field];
+        html = html + '<tr>';
+        html = html + '<td><input type="password" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="256" value="' + c["config_sckey"] + '" onBlur="switchType(this, false);" onFocus="switchType(this, true);" style="width:430px;margin-top: 3px;" disabled="disabled" /></td>';
+        html = html + '<td>';
+        html = html + '<input style="margin-left:-3px;" id="dd_node_' + c["node"] + '" class="edit_btn" type="button" onclick="editlTr(this);" value="">'
+        html = html + '</td>';
+        html = html + '<td>';
+        html = html + '<input style="margin-top: 4px;margin-left:-3px;" id="td_node_' + c["node"] + '" class="remove_btn" type="button" onclick="delTr(this);" value="">'
+        html = html + '</td>';
+        html = html + '</tr>';
+    }
+    return html;
+}
+function editlTr(o){ //编辑节点功能，显示编辑面板
+    checkTime = 2001; //编辑节点时停止可能在进行的刷新
+    var id = $j(o).attr("id");
+    var ids = id.split("_");
+    confs = getAllConfigs();
+    id = ids[ids.length - 1];
+    var c = confs[id];
+
+    document.form.config_sckey.value = c["config_sckey"];
+    myid=id; //返回ID号
+}
 function oncheckclick(obj) {
     if (obj.checked) {
         document.form["f_" + obj.id].value = "1";
+        if(obj.id=="serverchan_dhcp_white_en"){
+            document.getElementById("serverchan_dhcp_black_en").checked = false;
+            document.form["f_serverchan_dhcp_white_en"].value = "1";
+            document.form["f_serverchan_dhcp_black_en"].value = "0";
+        }
+        if(obj.id=="serverchan_dhcp_black_en"){
+            document.getElementById("serverchan_dhcp_white_en").checked = false;
+            document.form["f_serverchan_dhcp_white_en"].value = "0";
+            document.form["f_serverchan_dhcp_black_en"].value = "1";
+        }
     } else {
         document.form["f_" + obj.id].value = "0";
+        if(obj.id=="serverchan_dhcp_white_en"){
+            document.getElementById("serverchan_dhcp_black_en").checked = true;
+            document.form["f_serverchan_dhcp_white_en"].value = "0";
+            document.form["f_serverchan_dhcp_black_en"].value = "1";
+        }
+        if(obj.id=="serverchan_dhcp_black_en"){
+            document.getElementById("serverchan_dhcp_white_en").checked = true;
+            document.form["f_serverchan_dhcp_white_en"].value = "1";
+            document.form["f_serverchan_dhcp_black_en"].value = "0";
+        }
     }
 }
 function version_show(){
@@ -440,20 +604,11 @@ function version_show(){
                                                 <td colspan="2">ServerChan 设置</td>
                                               </tr>
                                           </thead>
-                                        <th style="width:25%;">版本信息</th>
+                                        <th style="width:20%;">版本信息</th>
                                         <td>
                                             <div id="serverchan_version_show" style="padding-top:5px;margin-left:0px;margin-top:0px;float: left;"><i>插件版本：<% dbus_get_def("serverchan_version", "未知"); %></i></div>
                                             <span style="padding-top:5px;margin-right: 15px;margin-left:0px;margin-top:0px;float: right;"><a href="http://koolshare.cn/thread-123937-1-1.html" target="_blank">[ 反馈地址 ]</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://raw.githubusercontent.com/koolshare/merlin_serverchan/master/Changelog.txt" target="_blank"><em><u>[ 更新日志 ]</u></em></a></span>
                                         </td>
-
-                                        <tr>
-                                            <th width="20%">SCKEY(最少需要一个接收人)</th>
-                                            <td>
-                                                <i>1.</i><input type="password" name="serverchan_config_sckey_1" id="serverchan_config_sckey_1" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="256" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" style="width:93%;margin-top: 3px;" /><br>
-                                                <i>2.</i><input type="password" name="serverchan_config_sckey_2" id="serverchan_config_sckey_2" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="256" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" style="width:93%;margin-top: 5px;" /><br>
-                                                <i>3.</i><input type="password" name="serverchan_config_sckey_3" id="serverchan_config_sckey_3" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="256" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" style="width:93%;margin-top: 5px;margin-bottom: 3px;" />
-                                            </td>
-                                        </tr>
                                         <tr>
                                             <th width="20%">消息免打扰时间</th>
                                             <td>
@@ -481,6 +636,27 @@ function version_show(){
                                                 </select>
                                             </td>
                                         </tr>
+                                    </table>
+                                    <table id="conf_table" width="100%" border="1" align="center" cellpadding="4" cellspacing="0" class="FormTable_table" style="margin-top:8px;">
+                                        <tr>
+                                            <th>SCKEY(最少需要一个接收人)</th>
+                                            <th>修改</th>
+                                            <th>添加/删除</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="input" name="config_sckey" id="config_sckey" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="256" value="" style="width:430px;margin-top: 3px;" />
+                                           </td>
+                                            <td width="7%">
+                                                <div>
+                                                </div>
+                                            </td>
+                                            <td width="10%">
+                                                <div>
+                                                    <input type="button" class="add_btn" onclick="addTr()" value=""/>
+                                                </div>
+                                            </td>
+                                          </tr>
                                     </table>
                                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="margin-top:8px;">
                                         <thead>
@@ -796,11 +972,13 @@ function version_show(){
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%">设备上线提醒白名单(MAC地址)<br><i>名单内设备上线不推送信息</i></th>
+                                            <th width="20%">设备上线提醒名单(MAC地址)<br><i>白名单：名单内设备上线不推送信息<br>黑名单：名单内设备上线推送信息</i></th>
                                             <td>
-                                                <label><input type="checkbox" id="serverchan_dhcp_white_en" checked="checked" onclick="oncheckclick(this);">
-                                                <input type="hidden" id="f_serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" value="1" />启用白名单</label>
-                                                <textarea placeholder="# 填入白名单设备MAC地址，一行一个，格式如下：
+                                                <label><input type="checkbox" id="serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" value="" />启用白名单</label>
+                                                <label><input type="checkbox" id="serverchan_dhcp_black_en" name="serverchan_dhcp_black_en" onclick="oncheckclick(this);">
+                                                    <input type="hidden" id="f_serverchan_dhcp_black_en" name="serverchan_dhcp_black_en" value="" />启用黑名单</label>
+                                                <textarea placeholder="# 填入设备MAC地址，一行一个，格式如下：
                                                 aa:bb:cc:dd:ee:ff
                                                 aa:bb:cc:dd:ee:ff #我的电脑
                                                 a1:b2:c3:d4:e5:f6 #我的手机" cols="50" rows="7" id="serverchan_trigger_dhcp_white" name="serverchan_trigger_dhcp_white" style="width:99%; font-family:'Lucida Console'; font-size:12px;background:#475A5F;color:#FFFFFF;text-transform:lowercase;margin-top:5px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
