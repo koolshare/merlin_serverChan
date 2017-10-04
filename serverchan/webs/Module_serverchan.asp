@@ -589,6 +589,7 @@ function version_show(){
                                                         </div>
                                                     </label>
                                                 </div>
+                                                <span style="margin-left:100px;"><input class="serverchan_btn" id="manual_push_Btn" onclick="manual_push();" type="button" value="手动推送"/></span>
                                             </td>
                                         </tr>
                                     </table>
@@ -628,6 +629,12 @@ function version_show(){
                                                         <option value="8" selected="selected">8时</option>
                                                         <option value="9">9时</option>
                                                 </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%">时间同步服务器(校正推送时间)</th>
+                                            <td>
+                                                <input type="text" class="input_ss_table" value="" id="serverchan_config_ntp" name="serverchan_config_ntp" maxlength="255" value="" placeholder="" style="width:250px;"/>
                                             </td>
                                         </tr>
                                     </table>
@@ -877,7 +884,6 @@ function version_show(){
                                                     </select>
                                                 </span>
                                                 <span id="_serverchan_check_send_text" style="display: none;">发送</span>
-                                                <span style="margin-left:10px;"><input class="serverchan_btn" id="manual_push_Btn" onclick="manual_push();" type="button" value="手动推送"/></span>
                                             </td>
                                         </tr>
                                         <tr>
@@ -968,14 +974,16 @@ function version_show(){
                                         <tr>
                                             <th width="20%">设备上线提醒名单(MAC地址)<br><i>白名单：名单内设备上线不推送信息<br>黑名单：名单内设备上线推送信息</i></th>
                                             <td>
+                                                <label><input type="checkbox" id="serverchan_dhcp_bwlist_en" name="serverchan_dhcp_bwlist_en" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_dhcp_bwlist_en" name="serverchan_dhcp_bwlist_en" value="" />启用</label>（ 
                                                 <label><input type="checkbox" id="serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" onclick="oncheckclick(this);">
-                                                <input type="hidden" id="f_serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" value="" />启用白名单</label>
+                                                <input type="hidden" id="f_serverchan_dhcp_white_en" name="serverchan_dhcp_white_en" value="" />白名单</label>
                                                 <label><input type="checkbox" id="serverchan_dhcp_black_en" name="serverchan_dhcp_black_en" onclick="oncheckclick(this);">
-                                                    <input type="hidden" id="f_serverchan_dhcp_black_en" name="serverchan_dhcp_black_en" value="" />启用黑名单</label>
+                                                    <input type="hidden" id="f_serverchan_dhcp_black_en" name="serverchan_dhcp_black_en" value="" />黑名单</label> ）
                                                 <textarea placeholder="# 填入设备MAC地址，一行一个，格式如下：
                                                 aa:bb:cc:dd:ee:ff
                                                 aa:bb:cc:dd:ee:ff #我的电脑
-                                                a1:b2:c3:d4:e5:f6 #我的手机" cols="50" rows="7" id="serverchan_trigger_dhcp_white" name="serverchan_trigger_dhcp_white" style="width:99%; font-family:'Lucida Console'; font-size:12px;background:#475A5F;color:#FFFFFF;text-transform:lowercase;margin-top:5px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                                                a1:b2:c3:d4:e5:f6 #我的手机" cols="50" rows="7" id="serverchan_trigger_dhcp_white" name="serverchan_trigger_dhcp_white" style="width:99%; font-family:'Lucida Console'; font-size:12px;background:#475A5F;color:#FFFFFF;text-transform:none;margin-top:5px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
                                             </td>
                                         </tr>
                                     </table>
