@@ -958,6 +958,8 @@ function version_show(){
                                             <td>
                                                 <input type="checkbox" id="serverchan_trigger_ifup" checked="checked" onclick="oncheckclick(this);">
                                                 <input type="hidden" id="f_serverchan_trigger_ifup" name="serverchan_trigger_ifup" value="1" />
+                                                <label style="margin-left:30px;">重播时单独推送上面设置的路由器信息<input type="checkbox" id="serverchan_trigger_ifup_sendinfo" onclick="oncheckclick(this);">
+                                                <input type="hidden" id="f_serverchan_trigger_ifup_sendinfo" name="serverchan_trigger_ifup_sendinfo" value="" /></label>
                                             </td>
                                         </tr>
                                         <tr>
