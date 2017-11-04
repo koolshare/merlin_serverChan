@@ -3,7 +3,6 @@ eval `dbus export serverchan_`
 source /koolshare/scripts/base.sh
 logger "[软件中心]: 正在卸载serverChan..."
 MODULE=serverchan
-VERSION="0.0.1"
 cd /
 /koolshare/serverchan/serverchan_config stop
 rm -f /koolshare/scripts/serverchan_check.sh

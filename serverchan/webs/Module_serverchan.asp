@@ -632,6 +632,13 @@ function version_show(){
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th width="20%">系统日志</th>
+                                            <td>
+                                                <label><input type="checkbox" id="serverchan_info_logger" onclick="oncheckclick(this);"> 在系统日志中显示ServerChan相关日志
+                                                <input type="hidden" id="f_serverchan_info_logger" name="serverchan_info_logger" value="" /></label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th width="20%">时间同步服务器(校正推送时间)</th>
                                             <td>
                                                 <input type="text" class="input_ss_table" value="" id="serverchan_config_ntp" name="serverchan_config_ntp" maxlength="255" value="" placeholder="" style="width:250px;"/>
